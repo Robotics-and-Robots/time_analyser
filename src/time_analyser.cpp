@@ -27,7 +27,7 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 int main(int argc, char **argv)
 {
 
-  ros::init(argc, argv, "talker");
+  ros::init(argc, argv, "time_analyser");
   ros::NodeHandle n;
 
   double rate;
