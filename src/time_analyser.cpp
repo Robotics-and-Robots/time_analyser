@@ -34,7 +34,6 @@ int main(int argc, char **argv)
 
     std::stringstream ss;
     ss << "hello world " << count;
-    
     msg.data = ss.str();
 
     ROS_INFO("%s", msg.data.c_str());
