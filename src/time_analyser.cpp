@@ -8,13 +8,19 @@
 ros::Time begin;
 int counter = 0;
 
-void chatterCallback(const std_msgs::String::ConstPtr& msg)
+// void chatterCallback(const std_msgs::String::ConstPtr& msg)
+// {
+//   ros::Duration spent_time;
+//   spent_time = ros::Time::now() - begin;
+//   ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
+//   ++counter;
+// }
+
+void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
   ros::Duration spent_time;
-  // ROS_INFO("I heard: [%s]", msg->data.c_str());
   spent_time = ros::Time::now() - begin;
-  // ROS_INFO("Time: [%d]", ros::Time::now().toNSec());
-  ROS_INFO("Time spent: %d: [%d]", counter, spent_time.toNSec());
+  ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
   ++counter;
 }
 
@@ -27,10 +33,12 @@ int main(int argc, char **argv)
   double rate;
   n.param("/time_analyser_rate", rate, 2.0);
 
-  ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
+  // ros::Publisher orca_ros_to_mpsoc_pub = n.advertise<std_msgs::String>("chatter", 1000);
+  ros::Publisher orca_ros_to_mpsoc_pub = n.advertise<std_msgs::String>("orca_ros_to_mpsoc", 1000);
   ros::Rate loop_rate(rate);
 
-  ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
+  // ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("chatter", 1000, chatterCallback);
+  ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("orca_mpsoc_to_ros", 1000, mpsocToRosCallback);
 
   int count = 0;
   while (ros::ok())
@@ -42,12 +50,9 @@ int main(int argc, char **argv)
     ss << "hello world " << count;
     msg.data = ss.str();
 
-    chatter_pub.publish(msg);
-
-    ROS_INFO("%s", msg.data.c_str());
+    orca_ros_to_mpsoc_pub.publish(msg);
 
     begin = ros::Time::now();
-    // ROS_INFO("Time: [%d]", begin.sec);
 
     ros::spinOnce();
 
