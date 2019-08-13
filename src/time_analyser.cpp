@@ -1,4 +1,4 @@
-/* @brief: count spent time to send and receive message. publish rate can be dinamically defined running on temrinal: rosparam set /time_analyser_rate 100.0*/
+/* @brief: count spent time to send and receive message. publish rate can be dinamically defined running on temrinal: rosparam set /time_analyser_rate 100.0 */
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "ros/time.h"
@@ -7,20 +7,14 @@
 
 ros::Time begin;
 int counter = 0;
-
-// void chatterCallback(const std_msgs::String::ConstPtr& msg)
-// {
-//   ros::Duration spent_time;
-//   spent_time = ros::Time::now() - begin;
-//   ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
-//   ++counter;
-// }
+ros::NodeHandle n;
 
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
   ros::Duration spent_time;
   spent_time = ros::Time::now() - begin;
   ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
+  ros::Publisher time_publisher = n.advertise<ros::Duration>("spent_time", 1000);
   ++counter;
 }
 
