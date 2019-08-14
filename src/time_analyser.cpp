@@ -30,7 +30,7 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
   myfile << got->first << ", " << spent_time.toNSec() << std::endl;
 
-  if (msg->data.compare("99") == 0)
+  if (msg->data.compare(std::to_string(NUM_MSGS +2)) == 0)
   {
     flag_100msgs_read = true;
   }
