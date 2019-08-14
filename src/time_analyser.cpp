@@ -56,6 +56,7 @@ int main(int argc, char **argv)
 
   uint8_t count = 0;
   while (ros::ok() && (!flag_100msgs_read))
+  //while(ros::ok())
   {
     // msg to be written
     std_msgs::String  msg;
