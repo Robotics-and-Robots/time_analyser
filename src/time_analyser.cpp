@@ -11,25 +11,21 @@ std::unordered_map<std::string, ros::Time> umap;
 
 ros::Time begin;
 int counter = 0;
+ros::Duration spent_time;
 
-std::ofstream myfile("/home/darlan/Desktop/example.txt", std::ios::out | std::ios::binary);
+std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", std::ios::out | std::ios::binary);
 
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
-  ros::Duration spent_time;
   spent_time = ros::Time::now() - begin;
   // ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
 
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
   std::cout << "Recebeu: "<< got->first << " ---- demorou: " << spent_time.toNSec() << "nsecs" << std::endl;
 
-  myfile << spent_time.toNSec();
-
-  // spent_times[msg.str_c().atoi()] = spent_time.toNSec();
-  // if (msg.str_c().atoi() == 1000)
-  //   myfile << spent_times;
+  myfile << got->first << "," << spent_time.toNSec() << std::endl;
   
-  ++counter;
+  counter++;
 }
 
 int main(int argc, char **argv)
@@ -60,7 +56,6 @@ int main(int argc, char **argv)
     }
 
     msg.data = ss.str();
-
     // ROS_INFO("data: %d, data: %s, sizeof: %d", count, msg.data.c_str(), msg.data.size());
 
     orca_ros_to_mpsoc_pub.publish(msg);
@@ -77,12 +72,10 @@ int main(int argc, char **argv)
     loop_rate = ros::Rate(rate);
 
     // if (count == 30) {
-
     //   for (auto x : umap) 
     //     std::cout << x.first.c_str() << " " << x.second << std::endl;
-
-    std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(std::to_string(count - 1));
-    std::cout << "Publicou: "<< got->first << " ---- no tempo: " << got->second << std::endl;
+    //   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(std::to_string(count - 1));
+    //   std::cout << "Publicou: "<< got->first << " ---- no tempo: " << got->second << std::endl;
     // }
       
   }
