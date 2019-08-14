@@ -2,6 +2,9 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 #include "ros/time.h"
+#include "std_msgs/Int8.h"
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>       /* time */
 
 #include <sstream>
 
@@ -16,7 +19,7 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
   ros::Duration spent_time;
   spent_time = ros::Time::now() - begin;
-  ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
+  // ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
 
   myfile << spent_time.toNSec();
 
@@ -36,7 +39,7 @@ int main(int argc, char **argv)
   double rate;
   n.param("/time_analyser_rate", rate, 2.0);
 
-  ros::Publisher orca_ros_to_mpsoc_pub = n.advertise<std_msgs::String>("orca_ros_to_mpsoc", 1000);
+  ros::Publisher orca_ros_to_mpsoc_pub = n.advertise<std_msgs::Int8>("orca_ros_to_mpsoc", 1000);
   ros::Rate loop_rate(rate);
 
   ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("orca_mpsoc_to_ros", 1000, mpsocToRosCallback);
@@ -44,12 +47,21 @@ int main(int argc, char **argv)
   int count = 0;
   while (ros::ok())
   {
+    // msg to be written
+    std_msgs::Int8 msg;
 
-    std_msgs::String msg;
+    // random generation
+    // struct timeval time; 
+    // gettimeofday(&time,NULL);
+    // srand((time.tv_sec * 1000) + (time.tv_usec / 1000));
+    // msg.data = rand() % 256;
+    // ROS_INFO("%d, size of: %d\n", msg.data, sizeof msg.data);
 
-    std::stringstream ss;
-    ss << "hello world " << count;
-    msg.data = ss.str();
+    // std::stringstream ss;
+    // ss << "hello world " << count;
+    // msg.data = ss.str();
+
+    
 
     orca_ros_to_mpsoc_pub.publish(msg);
 
