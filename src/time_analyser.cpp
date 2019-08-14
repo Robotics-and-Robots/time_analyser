@@ -3,9 +3,12 @@
 #include "std_msgs/String.h"
 #include "ros/time.h"
 #include <unordered_map> 
+#include <string>
 
 #include <sstream>
 #include <fstream>
+
+#define NUM_MSGS 100
 
 // Hash to store msg and publishing time
 std::unordered_map<std::string, ros::Time> umap; 
@@ -17,6 +20,8 @@ ros::Duration spent_time;
 // File writing
 std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", std::ios::out | std::ios::binary);
 
+bool flag_100msgs_read = false;
+
 // Callback executed when mpsoc publish into /mpsoc_to_ros topic
 // Here we measure the travel time of the sent message
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
@@ -24,6 +29,11 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
   spent_time = ros::Time::now() - begin;
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
   myfile << got->first << ", " << spent_time.toNSec() << std::endl;
+
+  if (msg->data.compare("99") == 0)
+  {
+    flag_100msgs_read = true;
+  }
 }
 
 int main(int argc, char **argv)
@@ -45,7 +55,7 @@ int main(int argc, char **argv)
   ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("orca_mpsoc_to_ros", 1000, mpsocToRosCallback);
 
   uint8_t count = 0;
-  while (ros::ok() && (count < 100))
+  while (ros::ok() && (!flag_100msgs_read))
   {
     // msg to be written
     std_msgs::String  msg;
