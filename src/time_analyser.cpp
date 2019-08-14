@@ -5,16 +5,25 @@
 
 #include <sstream>
 
+#include <fstream>
+
 ros::Time begin;
 int counter = 0;
-ros::NodeHandle n;
+
+std::ofstream myfile("/home/darlan/Desktop/example.txt", std::ios::out | std::ios::binary);
 
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
   ros::Duration spent_time;
   spent_time = ros::Time::now() - begin;
   ROS_INFO("Spent time: %d: [%d nano seconds]", counter, spent_time.toNSec());
-  ros::Publisher time_publisher = n.advertise<ros::Duration>("spent_time", 1000);
+
+  myfile << spent_time.toNSec();
+
+  // spent_times[msg.str_c().atoi()] = spent_time.toNSec();
+  // if (msg.str_c().atoi() == 1000)
+  //   myfile << spent_times;
+  
   ++counter;
 }
 
@@ -27,11 +36,9 @@ int main(int argc, char **argv)
   double rate;
   n.param("/time_analyser_rate", rate, 2.0);
 
-  // ros::Publisher orca_ros_to_mpsoc_pub = n.advertise<std_msgs::String>("chatter", 1000);
   ros::Publisher orca_ros_to_mpsoc_pub = n.advertise<std_msgs::String>("orca_ros_to_mpsoc", 1000);
   ros::Rate loop_rate(rate);
 
-  // ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("chatter", 1000, chatterCallback);
   ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("orca_mpsoc_to_ros", 1000, mpsocToRosCallback);
 
   int count = 0;
@@ -57,5 +64,6 @@ int main(int argc, char **argv)
     loop_rate = ros::Rate(rate);
   }
 
+  myfile.close();
   return 0;
 }
