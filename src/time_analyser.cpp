@@ -32,10 +32,10 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 
   std::cout << "Flag value: " << can_publish << " Inside callback " << std::endl;
   can_publish = true;
+
   spent_time = ros::Time::now() - begin;
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
   myfile << got->first << ", " << spent_time.toNSec() << std::endl;
-
   if (msg->data.compare(std::to_string(NUM_MSGS +2)) == 0)
   {
     flag_100msgs_read = true;
@@ -62,10 +62,6 @@ int main(int argc, char **argv)
   ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("orca_mpsoc_to_ros", 1000, mpsocToRosCallback);
 
   srand (time(NULL));
-
-  std_msgs::String  msgg;
-  msgg.data = "";
-  orca_ros_to_mpsoc_pub.publish(msgg);
 
   while (ros::ok() && (!flag_100msgs_read))
   //while(ros::ok())
@@ -96,9 +92,7 @@ int main(int argc, char **argv)
     }
 
     ros::spinOnce();
-
     loop_rate.sleep();
-
     n.getParam("/time_analyser_rate", rate);
     loop_rate = ros::Rate(rate);
     
