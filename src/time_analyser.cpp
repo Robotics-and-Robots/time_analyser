@@ -18,9 +18,8 @@ std::unordered_map<std::string, ros::Time> umap;
 // Time measurement
 ros::Time     begin;
 ros::Duration spent_time;
-bool can_publish        = true;
 bool flag_100msgs_read  = false;
-uint8_t counter = 0;
+// bool can_publish        = true;
 
 // File writing
 std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", std::ios::out | std::ios::binary);
@@ -30,28 +29,21 @@ std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", st
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
 
-  std::cout << "Flag value: " << can_publish << " Inside callback " << std::endl;
   can_publish = true;
-
   spent_time = ros::Time::now() - begin;
-  if (counter > 1)
+
+  // spent_time = ros::Time::now() - begin;
+  ROS_INFO("Received msg: %s", msg->data.c_str());
+  std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
+  if(got != umap.end())
   {
-    // spent_time = ros::Time::now() - begin;
-    ROS_INFO("Received msg: %s", msg->data.c_str());
-    std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
-    if(got != umap.end())
+  
+    myfile << got->first << ", " << spent_time.toNSec() << std::endl;
+    if (counter > NUM_MSGS + 2)
     {
-    
-      myfile << got->first << ", " << spent_time.toNSec() << std::endl;
-      if (counter > NUM_MSGS + 2)
-      {
-        flag_100msgs_read = true;
-      } else
-      {
-        counter++;
-      }
-    
+      flag_100msgs_read = true;
     }
+  
   }
   
 }
@@ -90,30 +82,20 @@ int main(int argc, char **argv)
 
     msg.data = ss.str();
     
-    if (counter > 1)
-    {
-      if (can_publish)
-      {
+    // if (can_publish)
+    // {
 
-        orca_ros_to_mpsoc_pub.publish(msg);
-        
-        // collects publishing time 
-        begin = ros::Time::now();
-        umap[msg.data] = begin;
-
-        ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
-        can_publish = false;
-
-      }
-      // counter++;
-    }
-    else
-    {
       orca_ros_to_mpsoc_pub.publish(msg);
-      ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
-      // counter++;
-    }
+      
+      // collects publishing time 
+      begin = ros::Time::now();
+      umap[msg.data] = begin;
 
+      ROS_INFO("Published data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
+      can_publish = false;
+
+    // }
+    
     ros::spinOnce();
     loop_rate.sleep();
     n.getParam("/time_analyser_rate", rate);
