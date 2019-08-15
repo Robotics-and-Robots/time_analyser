@@ -19,7 +19,6 @@ std::unordered_map<std::string, ros::Time> umap;
 ros::Time     begin;
 ros::Duration spent_time;
 bool can_publish = true;
-int counter = 0;
 
 // File writing
 std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", std::ios::out | std::ios::binary);
@@ -30,20 +29,17 @@ bool flag_100msgs_read = false;
 // Here we measure the travel time of the sent message
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
-  
-  if (counter > 0)
-  {
-    std::cout << "Flag value: " << can_publish << " Inside callback " << std::endl;
-    can_publish = true;
-    spent_time = ros::Time::now() - begin;
-    std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
-    myfile << got->first << ", " << spent_time.toNSec() << std::endl;
 
-    if (msg->data.compare(std::to_string(NUM_MSGS +2)) == 0)
-    {
-      flag_100msgs_read = true;
-    }
-  }else counter = 1;
+  std::cout << "Flag value: " << can_publish << " Inside callback " << std::endl;
+  can_publish = true;
+  spent_time = ros::Time::now() - begin;
+  std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
+  myfile << got->first << ", " << spent_time.toNSec() << std::endl;
+
+  if (msg->data.compare(std::to_string(NUM_MSGS +2)) == 0)
+  {
+    flag_100msgs_read = true;
+  }  
   
 }
 
@@ -67,6 +63,10 @@ int main(int argc, char **argv)
 
   srand (time(NULL));
 
+  std_msgs::String  msgg;
+  msgg.data = "";
+  orca_ros_to_mpsoc_pub.publish(msgg);
+
   while (ros::ok() && (!flag_100msgs_read))
   //while(ros::ok())
   {
@@ -80,19 +80,8 @@ int main(int argc, char **argv)
     // ss << std::to_string(std::rand()%900 + 100); // 3B
 
     msg.data = ss.str();
-
-    if (counter < 1)
-    {
-      orca_ros_to_mpsoc_pub.publish(msg);
-      
-      // collects publishing time 
-      // begin = ros::Time::now();
-      // umap[msg.data] = begin;
-
-      ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
-
-    }
-    else if (can_publish)
+    
+    if (can_publish)
     {
 
       orca_ros_to_mpsoc_pub.publish(msg);
