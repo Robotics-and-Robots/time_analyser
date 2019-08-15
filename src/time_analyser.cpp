@@ -40,7 +40,7 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
   {
   
     myfile << got->first << ", " << spent_time.toNSec() << std::endl;
-    ROS_INFO("umap size: %s", umap.size());
+    ROS_INFO("umap size: %d", umap.size());
     umap.erase(msg->data);
     // if (msg->data.compare(std::to_string(NUM_MSGS +2) == 0))
     if(num_msgs_counter == 100)
