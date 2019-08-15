@@ -39,7 +39,7 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
   {
   
     myfile << got->first << ", " << spent_time.toNSec() << std::endl;
-    if (counter > NUM_MSGS + 2)
+    if (msg->data.compare(std::to_string(NUM_MSGS +2)))
     {
       flag_100msgs_read = true;
     }
