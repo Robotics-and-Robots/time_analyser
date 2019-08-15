@@ -29,7 +29,7 @@ std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", st
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
 
-  can_publish = true;
+  // can_publish = true;
   spent_time = ros::Time::now() - begin;
 
   // spent_time = ros::Time::now() - begin;
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
       umap[msg.data] = begin;
 
       ROS_INFO("Published data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
-      can_publish = false;
+      // can_publish = false;
 
     // }
     
