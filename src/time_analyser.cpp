@@ -83,14 +83,18 @@ int main(int argc, char **argv)
     std::stringstream ss;
 
     // msg's size control
-    ss << std::to_string(std::rand()%10);           // 1B
-    // ss << std::to_string(std::rand()%90 + 10);   // 2B
-    // ss << std::to_string(std::rand()%900 + 100); // 3B
+    for (uint8_t i = 0; i < 16; i++)
+    {
+      ss << std::to_string(std::rand() % 10);
+    }
 
     msg.data = ss.str();
+    ROS_INFO("String: %s, string size: %d", msg.data.c_str(), msg.data.size());
 
     orca_ros_to_mpsoc_pub.publish(msg);
-    
+
+    ROS_INFO("String: %s, string size: %d", msg.data.c_str(), msg.data.size());
+
     // collects publishing time 
     begin = ros::Time::now();
     umap[msg.data] = begin;
