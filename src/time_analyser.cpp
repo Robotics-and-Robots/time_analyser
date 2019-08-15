@@ -31,18 +31,19 @@ bool flag_100msgs_read = false;
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
   
-  if (counter == 0) counter = 1;
-
-  std::cout << "Flag value: " << can_publish << " Inside callback " << std::endl;
-  can_publish = true;
-  spent_time = ros::Time::now() - begin;
-  std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
-  myfile << got->first << ", " << spent_time.toNSec() << std::endl;
-
-  if (msg->data.compare(std::to_string(NUM_MSGS +2)) == 0)
+  if (counter > 0)
   {
-    flag_100msgs_read = true;
-  }
+    std::cout << "Flag value: " << can_publish << " Inside callback " << std::endl;
+    can_publish = true;
+    spent_time = ros::Time::now() - begin;
+    std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
+    myfile << got->first << ", " << spent_time.toNSec() << std::endl;
+
+    if (msg->data.compare(std::to_string(NUM_MSGS +2)) == 0)
+    {
+      flag_100msgs_read = true;
+    }
+  }else counter = 1;
   
 }
 
