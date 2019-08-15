@@ -64,35 +64,26 @@ int main(int argc, char **argv)
   while (ros::ok() && (!flag_100msgs_read))
   //while(ros::ok())
   {
+    // msg to be written
+    std_msgs::String  msg;
+    std::stringstream ss;
 
-    std::cout << "Flag value: " << can_publish << " before if " << std::endl;
-    if (can_publish)
-    {
+    // msg's size control
+    ss << std::to_string(std::rand()%10);           // 1B
+    // ss << std::to_string(std::rand()%90 + 10);   // 2B
+    // ss << std::to_string(std::rand()%900 + 100); // 3B
 
-      
+    msg.data = ss.str();
 
-      // msg to be written
-      std_msgs::String  msg;
-      std::stringstream ss;
-
-      // msg's size control
-      for (int i = 0; i < 1; i++)
-      {
-        ss << std::to_string(std::rand()%10);       // 1B
-        // ss << std::to_string(std::rand()%90 + 10);  // 2B
-      }
-
-      msg.data = ss.str();
-
-      can_publish = false;
+    if(can_publish){
       orca_ros_to_mpsoc_pub.publish(msg);
-
-      // publishing time 
+      
+      // collects publishing time 
       begin = ros::Time::now();
       umap[msg.data] = begin;
 
       ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
-
+      can_publish = false;
     }
 
     ros::spinOnce();
