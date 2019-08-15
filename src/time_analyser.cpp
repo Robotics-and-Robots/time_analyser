@@ -35,11 +35,13 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 
   // spent_time = ros::Time::now() - begin;
   ROS_INFO("Received msg: %s", msg->data.c_str());
+  ROS_INFO("umap size: %s", umap.size());
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
   if(got != umap.end())
   {
   
     myfile << got->first << ", " << spent_time.toNSec() << std::endl;
+    umap.erase(msg->data);
     // if (msg->data.compare(std::to_string(NUM_MSGS +2) == 0))
     if(num_msgs_counter == 100)
     {
