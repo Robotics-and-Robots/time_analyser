@@ -22,7 +22,7 @@ bool flag_100msgs_read  = false;
 int num_msgs_counter    = 0;
 
 // File writing
-std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", std::ios::out | std::ios::binary);
+std::ofstream myfile("/home/adomingues/gaph/darlan/ursa/tools/ros-integration/src/time_analyser/dataCollection_1B_tile1-1.txt", std::ios::out | std::ios::binary);
 
 // Callback executed when mpsoc publish into /mpsoc_to_ros topic
 // Here we measure the travel time of the sent message
@@ -32,7 +32,7 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
   spent_time = ros::Time::now() - begin;
 
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
-  ROS_INFO("umap size: %d", umap.size());
+  //ROS_INFO("umap size: %d", umap.size());
   if(got != umap.end())
   {
   
@@ -49,7 +49,7 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
     if (umap.size() > 0)
     {
       umap.erase(umap.begin(), umap.end());
-      ROS_INFO("After erase, umap size: %d", umap.size());
+      //ROS_INFO("After erase, umap size: %d", umap.size());
     }
   }
 
