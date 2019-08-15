@@ -19,6 +19,7 @@ std::unordered_map<std::string, ros::Time> umap;
 ros::Time     begin;
 ros::Duration spent_time;
 bool flag_100msgs_read  = false;
+int num_msgs_counter    = 0;
 // bool can_publish        = true;
 
 // File writing
@@ -39,13 +40,16 @@ void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
   {
   
     myfile << got->first << ", " << spent_time.toNSec() << std::endl;
-    if (msg->data.compare(std::to_string(NUM_MSGS +2)))
+    // if (msg->data.compare(std::to_string(NUM_MSGS +2) == 0))
+    if(num_msgs_counter == 100)
     {
       flag_100msgs_read = true;
     }
+
+    num_msgs_counter++;
   
   }
-  
+
 }
 
 int main(int argc, char **argv)
