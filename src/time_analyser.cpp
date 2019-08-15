@@ -20,7 +20,6 @@ ros::Time     begin;
 ros::Duration spent_time;
 bool flag_100msgs_read  = false;
 int num_msgs_counter    = 0;
-// bool can_publish        = true;
 
 // File writing
 std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", std::ios::out | std::ios::binary);
@@ -29,27 +28,29 @@ std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", st
 // Here we measure the travel time of the sent message
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
-
-  // can_publish = true;
+  
   spent_time = ros::Time::now() - begin;
 
-  // spent_time = ros::Time::now() - begin;
-  ROS_INFO("Received msg: %s", msg->data.c_str());
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
+  ROS_INFO("umap size: %d", umap.size());
   if(got != umap.end())
   {
   
     myfile << got->first << ", " << spent_time.toNSec() << std::endl;
-    ROS_INFO("umap size: %d", umap.size());
     umap.erase(msg->data);
-    // if (msg->data.compare(std::to_string(NUM_MSGS +2) == 0))
+
     if(num_msgs_counter == 100)
     {
       flag_100msgs_read = true;
     }
 
     num_msgs_counter++;
-  
+
+    if (umap.size() > 0)
+    {
+      umap.erase(umap.begin(), umap.end());
+      ROS_INFO("After erase, umap size: %d", umap.size());
+    }
   }
 
 }
@@ -87,20 +88,12 @@ int main(int argc, char **argv)
     // ss << std::to_string(std::rand()%900 + 100); // 3B
 
     msg.data = ss.str();
+
+    orca_ros_to_mpsoc_pub.publish(msg);
     
-    // if (can_publish)
-    // {
-
-      orca_ros_to_mpsoc_pub.publish(msg);
-      
-      // collects publishing time 
-      begin = ros::Time::now();
-      umap[msg.data] = begin;
-
-      ROS_INFO("Published data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
-      // can_publish = false;
-
-    // }
+    // collects publishing time 
+    begin = ros::Time::now();
+    umap[msg.data] = begin;
     
     ros::spinOnce();
     loop_rate.sleep();
