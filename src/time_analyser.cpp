@@ -8,6 +8,8 @@
 #include <sstream>
 #include <fstream>
 
+#include <time.h>       /* time */
+
 #define NUM_MSGS 100
 
 // Hash to store msg and publishing time
@@ -54,7 +56,9 @@ int main(int argc, char **argv)
   // mpsoc publishing listener
   ros::Subscriber orca_mpsoc_to_ros_pub = n.subscribe("orca_mpsoc_to_ros", 1000, mpsocToRosCallback);
 
-  uint8_t count = 0;
+  srand (time(NULL));
+
+  // uint8_t count = 0;
   while (ros::ok() && (!flag_100msgs_read))
   //while(ros::ok())
   {
@@ -65,11 +69,15 @@ int main(int argc, char **argv)
     // msg's size control
     for (int i = 0; i < 1; i++)
     {
-      ss << std::to_string(count);
+      // ss << std::to_string(count);
+      ss << std::to_string(std::rand()%10);       // 1B
+      // ss << std::to_string(std::rand()%90 + 10);  // 2B
     }
 
     msg.data = ss.str();
     orca_ros_to_mpsoc_pub.publish(msg);
+
+    ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
 
     // publishing time 
     begin = ros::Time::now();
@@ -78,7 +86,7 @@ int main(int argc, char **argv)
     ros::spinOnce();
 
     loop_rate.sleep();
-    count++;
+    // count++;
 
     n.getParam("/time_analyser_rate", rate);
     loop_rate = ros::Rate(rate);
@@ -88,3 +96,4 @@ int main(int argc, char **argv)
   myfile.close();
   return 0;
 }
+
