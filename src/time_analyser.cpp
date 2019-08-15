@@ -88,14 +88,14 @@ int main(int argc, char **argv)
       begin = ros::Time::now();
       umap[msg.data] = begin;
 
-      ros::spinOnce();
-
-      loop_rate.sleep();
-
-      n.getParam("/time_analyser_rate", rate);
-      loop_rate = ros::Rate(rate);
-
     }
+
+    ros::spinOnce();
+
+    loop_rate.sleep();
+
+    n.getParam("/time_analyser_rate", rate);
+    loop_rate = ros::Rate(rate);
     
   }
 
