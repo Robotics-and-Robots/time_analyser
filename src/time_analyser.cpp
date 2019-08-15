@@ -18,6 +18,7 @@ std::unordered_map<std::string, ros::Time> umap;
 // Time measurement
 ros::Time     begin;
 ros::Duration spent_time;
+bool can_publish = true;
 
 // File writing
 std::ofstream myfile("/home/adomingues/gaph/darlan/dataCollection_1byte.txt", std::ios::out | std::ios::binary);
@@ -28,6 +29,7 @@ bool flag_100msgs_read = false;
 // Here we measure the travel time of the sent message
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
+  can_publish = true;
   spent_time = ros::Time::now() - begin;
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
   myfile << got->first << ", " << spent_time.toNSec() << std::endl;
@@ -58,39 +60,43 @@ int main(int argc, char **argv)
 
   srand (time(NULL));
 
-  // uint8_t count = 0;
   while (ros::ok() && (!flag_100msgs_read))
   //while(ros::ok())
   {
-    // msg to be written
-    std_msgs::String  msg;
-    std::stringstream ss;
 
-    // msg's size control
-    for (int i = 0; i < 1; i++)
+    if (can_publish)
     {
-      // ss << std::to_string(count);
-      ss << std::to_string(std::rand()%10);       // 1B
-      // ss << std::to_string(std::rand()%90 + 10);  // 2B
+      // msg to be written
+      std_msgs::String  msg;
+      std::stringstream ss;
+
+      // msg's size control
+      for (int i = 0; i < 1; i++)
+      {
+        ss << std::to_string(std::rand()%10);       // 1B
+        // ss << std::to_string(std::rand()%90 + 10);  // 2B
+      }
+
+      msg.data = ss.str();
+
+      orca_ros_to_mpsoc_pub.publish(msg);
+      can_publish = false;
+
+      ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
+
+      // publishing time 
+      begin = ros::Time::now();
+      umap[msg.data] = begin;
+
+      ros::spinOnce();
+
+      loop_rate.sleep();
+
+      n.getParam("/time_analyser_rate", rate);
+      loop_rate = ros::Rate(rate);
+
     }
-
-    msg.data = ss.str();
-    orca_ros_to_mpsoc_pub.publish(msg);
-
-    ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
-
-    // publishing time 
-    begin = ros::Time::now();
-    umap[msg.data] = begin;
-
-    ros::spinOnce();
-
-    loop_rate.sleep();
-    // count++;
-
-    n.getParam("/time_analyser_rate", rate);
-    loop_rate = ros::Rate(rate);
-      
+    
   }
 
   myfile.close();
