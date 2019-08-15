@@ -29,6 +29,7 @@ bool flag_100msgs_read = false;
 // Here we measure the travel time of the sent message
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
+  std::cout << "Flag value: " << can_publish << " Inside callback " << std::endl;
   can_publish = true;
   spent_time = ros::Time::now() - begin;
   std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
@@ -64,8 +65,12 @@ int main(int argc, char **argv)
   //while(ros::ok())
   {
 
+    std::cout << "Flag value: " << can_publish << " before if " << std::endl;
     if (can_publish)
     {
+
+      
+
       // msg to be written
       std_msgs::String  msg;
       std::stringstream ss;
@@ -79,14 +84,14 @@ int main(int argc, char **argv)
 
       msg.data = ss.str();
 
-      orca_ros_to_mpsoc_pub.publish(msg);
       can_publish = false;
-
-      ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
+      orca_ros_to_mpsoc_pub.publish(msg);
 
       // publishing time 
       begin = ros::Time::now();
       umap[msg.data] = begin;
+
+      ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
 
     }
 
