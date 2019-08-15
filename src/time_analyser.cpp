@@ -100,7 +100,12 @@ int main(int argc, char **argv)
         can_publish = false;
 
       }
+    }else
+    {
+      orca_ros_to_mpsoc_pub.publish(msg);
+      ROS_INFO("data: %s, sizeof: %d", msg.data.c_str(), msg.data.length());
     }
+    
 
     ros::spinOnce();
     loop_rate.sleep();
