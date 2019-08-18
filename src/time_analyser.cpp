@@ -10,33 +10,44 @@
 
 #include <time.h>       /* time */
 
+#include <chrono>
+#include <cmath>
+
 #define NUM_MSGS 100
 
 // Hash to store msg and publishing time
-std::unordered_map<std::string, ros::Time> umap; 
+//std::unordered_map<std::string, ros::Time> umap; 
+std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> umap; 
+
 
 // Time measurement
-ros::Time     begin;
-ros::Duration spent_time;
+//ros::Time     begin;
+//ros::Duration spent_time;
 bool flag_100msgs_read  = false;
 int num_msgs_counter    = 0;
 
+std::chrono::high_resolution_clock::time_point begin, end;
+//std::chrono::duration<std::chrono::milliseconds> spent_time;
+
 // File writing
-std::ofstream myfile("/home/adomingues/gaph/darlan/ursa/tools/ros-integration/src/time_analyser/dataCollection_1B_tile1-1.txt", std::ios::out | std::ios::binary);
+std::ofstream myfile("/home/adomingues/gaph/darlan/ursa/tools/ros-integration/src/time_analyser/dataCollection_2B_tile1-1.txt", std::ios::out | std::ios::binary);
 
 // Callback executed when mpsoc publish into /mpsoc_to_ros topic
 // Here we measure the travel time of the sent message
 void mpsocToRosCallback(const std_msgs::String::ConstPtr& msg)
 {
   
-  spent_time = ros::Time::now() - begin;
 
-  std::unordered_map<std::string, ros::Time>::const_iterator got = umap.find(msg->data);
+  end = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>( end - begin ).count();
+
+  std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point>::const_iterator got = umap.find(msg->data);
   //ROS_INFO("umap size: %d", umap.size());
   if(got != umap.end())
   {
   
-    myfile << got->first << ", " << spent_time.toNSec() << std::endl;
+//    myfile << got->first << ", " << spent_time.toNSec() << std::endl;
+    myfile << got->first << ", " << duration << std::endl;
     umap.erase(msg->data);
 
     if(num_msgs_counter == 100)
@@ -83,7 +94,7 @@ int main(int argc, char **argv)
     std::stringstream ss;
 
     // msg's size control
-    for (uint8_t i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < 2; i++)
     {
       ss << std::to_string(std::rand() % 10);
     }
@@ -91,12 +102,13 @@ int main(int argc, char **argv)
     msg.data = ss.str();
     ROS_INFO("String: %s, string size: %d", msg.data.c_str(), msg.data.size());
 
+    begin = std::chrono::high_resolution_clock::now();
     orca_ros_to_mpsoc_pub.publish(msg);
 
     ROS_INFO("String: %s, string size: %d", msg.data.c_str(), msg.data.size());
 
     // collects publishing time 
-    begin = ros::Time::now();
+    //begin = ros::Time::now();
     umap[msg.data] = begin;
     
     ros::spinOnce();
