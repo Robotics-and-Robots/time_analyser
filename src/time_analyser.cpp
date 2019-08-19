@@ -11,6 +11,7 @@
 #include <cmath>				// Time measurement
 
 #define NUM_MSGS 100			// Sampling amount
+#define MSGS_SIZE 112			// Msg size
 
 // Hash to store msg and publishing time
 //std::unordered_map<std::string, ros::Time> umap; 
@@ -24,7 +25,7 @@ bool 	flag_100msgs_read	= false;
 int  	num_msgs_counter    = 0;
 
 // File writing
-std::ofstream myfile("/home/adomingues/gaph/darlan/ursa/tools/ros-integration/src/time_analyser/dataCollection_1024B_tile1-0.txt", std::ios::out | std::ios::binary);
+std::ofstream myfile("/home/adomingues/gaph/darlan/ursa/tools/ros-integration/src/time_analyser/dataCollection_128B_tile1-0.txt", std::ios::out | std::ios::binary);
 
 // Callback executed when mpsoc publish into /mpsoc_to_ros topic
 // Here we measure the travel time of the sent message
@@ -85,7 +86,7 @@ int main(int argc, char **argv)
     std::stringstream ss;
 
     // msg's size control
-    for (int i = 0; i < 1024; i++)
+    for (int i = 0; i < MSGS_SIZE; i++)
     {
       ss << std::to_string(std::rand() % 10);
     }
